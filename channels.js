@@ -18,15 +18,18 @@ const CHANNELS = [
   { id:14, number:14, name: "ESPN 3", category: "Esportes",   quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/512px-ESPN_wordmark.svg.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=espn3" },
   { id:15, number:15, name: "ESPN 4", category: "Esportes",   quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/512px-ESPN_wordmark.svg.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=espn4" },
   { id:16, number:16, name: "ESPN 5", category: "Esportes",   quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/512px-ESPN_wordmark.svg.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=espn5" },
+  
   { id:17, number:17, name: "Sportv", category: "Esportes",   quality: "HD", logoUrl: "https://i.imgur.com/eHJ8Vm3.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=sportv" },
   { id:18, number:18, name: "Sportv 2", category: "Esportes", quality: "HD", logoUrl: "https://i.imgur.com/eHJ8Vm3.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=sportv2" },
   { id:19, number:19, name: "Sportv 3", category: "Esportes", quality: "HD", logoUrl: "https://i.imgur.com/eHJ8Vm3.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=sportv3" },
   { id:20, number:20, name: "Sportv", category: "Esportes",   quality: "SD", logoUrl: "https://i.imgur.com/eHJ8Vm3.png", live: true, streamUrl: "https://embedflix.live/tv/player.php?id=sportv" },
   { id:21, number:21, name: "Sportv 2", category: "Esportes", quality: "SD", logoUrl: "https://i.imgur.com/eHJ8Vm3.png", live: true, streamUrl: "https://embedflix.live/tv/player.php?id=sportv2" },
   { id:22, number:22, name: "Sportv 3", category: "Esportes", quality: "SD", logoUrl: "https://i.imgur.com/eHJ8Vm3.png", live: true, streamUrl: "https://embedflix.live/tv/player.php?id=sportv3" },
+  
   { id:23, number:23, name: "Band Sports", category: "Esportes", quality: "HD", logoUrl: "https://i.imgur.com/EuPvzJe.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=bandsports" },
   { id:24, number:24, name: "Xsports", category: "Abertos", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Xsports_logo.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=xsports" },
   { id:25, number:25, name: "Globonews", category: "Noticias", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Xsports_logo.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=globonews" },
+  
   { id:26, number:26, name: "Premiere 1", category: "Esportes", quality: "HD", logoUrl: "https://reidoscanais.life/img/premiere.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=premiereclubes" },
   { id:27, number:27, name: "Premiere 2", category: "Esportes", quality: "HD", logoUrl: "https://reidoscanais.life/img/premiere.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=premiere2" },
   { id:28, number:28, name: "Premiere 3", category: "Esportes", quality: "HD", logoUrl: "https://reidoscanais.life/img/premiere.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=premiere3" },
@@ -34,16 +37,20 @@ const CHANNELS = [
   { id:30, number:30, name: "Premiere 5", category: "Esportes", quality: "HD", logoUrl: "https://reidoscanais.life/img/premiere.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=premiere5" },
   { id:31, number:31, name: "Premiere 6", category: "Esportes", quality: "HD", logoUrl: "https://reidoscanais.life/img/premiere.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=premiere6" },
   { id:32, number:32, name: "Premiere 7", category: "Esportes", quality: "HD", logoUrl: "https://reidoscanais.life/img/premiere.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=premiere7" },
-   { id:33, number:33, name: "MAX 1", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=max" },
+   
+  { id:33, number:33, name: "MAX 1", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=max" },
    { id:34, number:34, name: "MAX 2", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=max2" },
    { id:35, number:35, name: "MAX 3", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=max3" },
+  
   { id:36, number:36, name: "Paramount+", category: "Esportes", quality: "HD", logoUrl: "https://logodownload.org/wp-content/uploads/2021/03/paramount-plus-logo-0.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=paramountplus" },
   { id:37, number:37, name: "Paramount+ 2", category: "Esportes", quality: "HD", logoUrl: "https://logodownload.org/wp-content/uploads/2021/03/paramount-plus-logo-0.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=paramountplus2" },
   { id:38, number:38, name: "Paramount+ 3", category: "Esportes", quality: "HD", logoUrl: "https://logodownload.org/wp-content/uploads/2021/03/paramount-plus-logo-0.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=paramountplus3" },
+  
   { id:39, number:39, name: "Prime Video", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=primevideo" },
   { id:40, number:40, name: "Prime Video 2", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=primevideo2" },
   { id:41, number:41, name: "Prime Video 3", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=primevideo3" },
   { id:41, number:41, name: "Prime Video 3", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=primevideo3" },
+  
   { id:42, number:42, name: "Animal Planet", category: "Variedades", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/2018_Animal_Planet_logo.svg/512px-2018_Animal_Planet_logo.svg.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=animalplanet" },
   { id:43, number:43, name: "Discovery Kids", category: "Kids", quality: "HD", logoUrl: "https://i.imgur.com/C0VEHXU.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=discoverykids" },
   { id:44, number:44, name: "Nickelodeon", category: "Kids", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Nickelodeon_2009_logo.svg/512px-Nickelodeon_2009_logo.svg.png", live: true, streamUrl: "https://reidoscanais.life/embed/?id=nickelodeon" },
@@ -69,5 +76,5 @@ const CHANNELS = [
   { id:64, number:64, name: "A Fazenda (Cam 5)",        category: "Destaque", quality: "HD", logoUrl: "https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2025/08/logo-a-fazenda-17.png?w=419&h=283&crop=0", live: true, streamUrl: "https://reidoscanais.life/embed/?id=fazenda17-5" },
   { id:65, number:65, name: "A Fazenda (Cam 6)",        category: "Destaque", quality: "HD", logoUrl: "https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2025/08/logo-a-fazenda-17.png?w=419&h=283&crop=0", live: true, streamUrl: "https://reidoscanais.life/embed/?id=fazenda17-6" },
   { id:66, number:66, name: "Apple TV+",        category: "Esportes", quality: "HD", logoUrl: "https://cdn.freebiesupply.com/logos/large/2x/apple-tv-logo-svg-vector.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=appletv" },
-  
+  { id:67, number:67, name: "MAX 4", category: "Esportes", quality: "HD", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg", live: true, streamUrl: "https://reidoscanais.life/embed/?id=max4" },
 ];
