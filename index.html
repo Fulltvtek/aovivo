@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fulltv • Canais ao Vivo</title>
+
+  <!-- Google Fonts (Kids) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libertinus+Keyboard&display=swap" rel="stylesheet">
+
+  <!-- CSS do site -->
+  <link rel="stylesheet" href="style.css?v=6">
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="left">
+      <div class="logo">F</div>
+      <span class="brand">Fulltv</span>
+    </div>
+
+    <nav class="menu">
+      <button data-tab="TODOS OS CANAIS" class="active">Todos os canais</button>
+      <button data-tab="ABERTOS">Abertos</button>
+      <button data-tab="ESPORTES">Esportes</button>
+      <button data-tab="VARIEDADES">Variedades</button>
+      <button data-tab="KIDS" class="kids-font" title="Kids">
+        <span class="kids-k">K</span><span class="kids-i">I</span><span class="kids-d">D</span><span class="kids-s">S</span>
+      </button>
+      <button data-tab="DESTAQUES">Destaques</button>
+    </nav>
+
+    <div class="right">
+      <div id="clock" class="clock">--:--</div>
+    </div>
+  </header>
+
+  <!-- GRID -->
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Lista de Canais</div>
+      <div id="channelList" class="channel-list thin-scroll"></div>
+      <div class="hint">↑/↓ para navegar • Enter para assistir</div>
+    </aside>
+
+    <!-- Player -->
+    <section id="playerContainer" class="player-container">
+      <div id="playShield" class="play-shield" style="display:flex">
+        <button id="playBtn" class="play-btn" type="button" aria-label="Reproduzir">▶ Reproduzir</button>
+      </div>
+
+      <!-- sem sandbox -->
+      <iframe
+        id="player"
+        src="about:blank"
+        title="Canal atual"
+        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+        allowfullscreen
+        referrerpolicy="no-referrer"
+        playsinline
+      ></iframe>
+
+      <div class="live-pill"><span class="dot"></span> AO VIVO</div>
+      <button id="btnFullscreen" class="btn-fs" title="Tela cheia">⤢</button>
+
+      <div id="infoBar" class="info-bar">
+        <div class="meta">
+          <div class="meta-label">Canal</div>
+          <div class="meta-row">
+            <h3 id="infoTitle" class="meta-title">—</h3>
+            <div id="infoSubtitle" class="meta-subtitle">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Todos os direitos reservados ao Fulltv © 2025</footer>
+
+  <!-- Scripts -->
+  <script src="channels.js?v=6"></script>
+  <script src="script.js?v=6"></script>
+</body>
+</html>
