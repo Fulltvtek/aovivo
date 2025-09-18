@@ -338,7 +338,7 @@ const CHANNELS = [
     "quality": "HD",
     "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg",
     "live": true,
-    "streamUrl": "https://reidoscanais.life/embed/?id=max2"
+    "streamUrl": "https://rdcanais.top/max2"
   },
   {
     "id": 35,
