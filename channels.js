@@ -686,8 +686,8 @@ const CHANNELS = [
     "name": "Disney+",
     "category": "Esportes",
     "quality": "HD",
-    "logoUrl": "https://embedtv-3.icu/disneyplus1",
-    "streamUrl": "https://embedtv.digital/assets/images/disneyplus.png",
+    "logoUrl": "https://embedtv.digital/assets/images/disneyplus.png",
+    "streamUrl": "https://embedtv-3.icu/disneyplus1",
     "live": true
   },
   {
@@ -696,8 +696,8 @@ const CHANNELS = [
     "name": "Disney+ 2",
     "category": "Esportes",
     "quality": "HD",
-    "logoUrl": "https://embedtv-3.icu/disneyplus2",
-    "streamUrl": "https://embedtv.digital/assets/images/disneyplus.png",
+    "logoUrl": "https://embedtv.digital/assets/images/disneyplus.png",
+    "streamUrl": "https://embedtv-3.icu/disneyplus2",
     "live": true
   }
 ];
