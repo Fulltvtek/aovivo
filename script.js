@@ -1,10 +1,27 @@
 (function () {
-  // ===== Estado =====
+  const byId = (id) => document.getElementById(id);
+
+  function readChannelsSafe() {
+    try { if (Array.isArray(CHANNELS)) return CHANNELS; } catch {}
+    for (const key of ['CHANNELS','channels','CANAIS','canais']) {
+      try { if (Array.isArray(globalThis[key])) return globalThis[key]; } catch {}
+      try { if (Array.isArray(window[key])) return window[key]; } catch {}
+    }
+    try {
+      const ov = localStorage.getItem('CHANNELS_OVERRIDE');
+      if (ov) { const arr = JSON.parse(ov); if (Array.isArray(arr)) return arr; }
+    } catch {}
+    return [];
+  }
+
+  let RAW_CHANNELS = readChannelsSafe();
   let selectedIndex = 0;
-  let activeCategory = 'ALL'; // Todos os canais
+  let activeCategory = 'ALL';
+  let sportsHandle = null;
 
   const TAB_TO_CATEGORY = {
     'TODOS OS CANAIS': 'ALL',
+    'JOGOS AO VIVO': 'LIVE_GAMES',
     'ABERTOS': 'Abertos',
     'ESPORTES': 'Esportes',
     'VARIEDADES': 'Variedades',
@@ -12,20 +29,22 @@
     'DESTAQUES': 'Destaque'
   };
 
-  const normalize = (s) => (s || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toUpperCase().trim();
+  const normalize = (s) =>
+    (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
 
   function getVisibleChannels() {
-    if (activeCategory === 'ALL') return CHANNELS || [];
-    return (CHANNELS || []).filter(ch => normalize(ch.category) === normalize(activeCategory));
+    if (activeCategory === 'ALL') return RAW_CHANNELS;
+    if (activeCategory === 'LIVE_GAMES') return [];
+    return RAW_CHANNELS.filter(ch => normalize(ch.category) === normalize(activeCategory));
   }
 
-  // ===== Play Shield (primeiro clique) =====
+  // Play Shield
   const PLAY_GATE_KEY = 'playGateDone';
-  function showPlayShield(){ const el=document.getElementById('playShield'); if(el) el.style.display='flex'; }
-  function hidePlayShield(){ const el=document.getElementById('playShield'); if(el) el.style.display='none'; }
+  function showPlayShield(){ const el=byId('playShield'); if(el) el.style.display='flex'; }
+  function hidePlayShield(){ const el=byId('playShield'); if(el) el.style.display='none'; }
   function initPlayShield(){
-    const shield = document.getElementById('playShield');
-    const btn = document.getElementById('playBtn');
+    const shield = byId('playShield');
+    const btn = byId('playBtn');
     const used = localStorage.getItem(PLAY_GATE_KEY) === '1';
     if(!shield) return;
     if(used){ hidePlayShield(); return; }
@@ -34,11 +53,48 @@
     if(btn) btn.addEventListener('click', (e)=>{ e.stopPropagation(); accept(); });
   }
 
-  // ===== Render lista =====
+  // Player helpers (para sports.js)
+  function normalizeEmbedUrl(url) {
+    if (!url) return url;
+    try {
+      const u = new URL(url, location.href);
+      if (u.hostname.includes('youtube.com')) { const v=u.searchParams.get('v'); if (v) return `https://www.youtube.com/embed/${v}`; }
+      if (u.hostname === 'youtu.be') return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+      return u.toString();
+    } catch { return url; }
+  }
+  function setPlayerSource(rawUrl, fallbackHrefIfNoUrl) {
+    const iframe = byId('player');
+    const notice = byId('playerNotice');
+    const open = byId('playerOpen');
+    const url = normalizeEmbedUrl(rawUrl);
+
+    const show = (msg, href, label='Abrir em nova aba ↗') => {
+      if (notice) { notice.textContent = msg; notice.style.display = ''; }
+      if (open)   { if (href) { open.href = href; open.textContent = label; open.style.display = ''; } else { open.style.display = 'none'; } }
+    };
+    const hide = () => { if (notice) notice.style.display = 'none'; if (open) open.style.display = 'none'; };
+    hide();
+
+    if (!url) { if (iframe) iframe.src='about:blank'; show('Fonte indisponível para este evento.', fallbackHrefIfNoUrl || null, 'Abrir detalhes do evento (JSON) ↗'); return; }
+    if (location.protocol==='https:' && url.startsWith('http:')) { if (iframe) iframe.src='about:blank'; show('Conteúdo HTTP bloqueado (misto).', url); return; }
+
+    if (iframe) iframe.src = url;
+    let ok=false; const onLoad=()=>{ok=true; iframe&&iframe.removeEventListener('load',onLoad);};
+    iframe&&iframe.addEventListener('load',onLoad,{once:true});
+    setTimeout(()=>{ if(!ok) show('Este provedor não permite incorporação.', url); },3000);
+  }
+  window.FulltvPlayer = { setPlayerSource, showPlayShield, els:{ infoTitle:()=>byId('infoTitle'), infoSubtitle:()=>byId('infoSubtitle') } };
+
+  // Lista de canais
   function renderList() {
-    const listEl = document.getElementById('channelList');
+    const listEl = byId('channelList');
+    const tabsHost = byId('sportsTabsHost');
     if (!listEl) return;
     listEl.innerHTML = '';
+    if (tabsHost) tabsHost.style.display = 'none';
+
+    if (!RAW_CHANNELS || RAW_CHANNELS.length === 0) RAW_CHANNELS = readChannelsSafe();
 
     const visible = getVisibleChannels();
     if (!visible.length) {
@@ -57,159 +113,127 @@
       const logoWrap = document.createElement('div');
       logoWrap.className = 'channel-logo';
       if (ch.logoUrl) {
-        const img = document.createElement('img');
-        img.src = ch.logoUrl;
-        img.alt = ch.name || 'Canal';
-        img.loading = 'lazy';
+        const img = document.createElement('img'); img.src = ch.logoUrl; img.alt = ch.name || 'Canal'; img.loading='lazy';
         logoWrap.appendChild(img);
       } else {
-        const fallback = document.createElement('div');
-        fallback.textContent = (ch.name || '?').charAt(0).toUpperCase();
-        fallback.className = 'channel-logo-fallback';
+        const fallback = document.createElement('div'); fallback.textContent = (ch.name||'?').charAt(0).toUpperCase(); fallback.className = 'channel-logo-fallback';
         logoWrap.appendChild(fallback);
       }
 
-      const textWrap = document.createElement('div');
-      textWrap.className = 'channel-texts';
+      const textWrap = document.createElement('div'); textWrap.className = 'channel-texts';
+      const titleRow = document.createElement('div'); titleRow.className = 'channel-title-row';
 
-      const titleRow = document.createElement('div');
-      titleRow.className = 'channel-title-row';
-
-      const num = document.createElement('span');
-      num.className = 'channel-number';
-      num.textContent = ch.number != null ? ch.number : '—';
-
-      const name = document.createElement('span');
-      name.className = 'channel-name';
-      name.textContent = ch.name || 'Sem nome';
-
-      const badge = document.createElement('span');
-      badge.className = 'channel-badge';
-      badge.textContent = ch.quality || '';
+      const num = document.createElement('span'); num.className = 'channel-number'; num.textContent = ch.number != null ? ch.number : '—';
+      const name = document.createElement('span'); name.className = 'channel-name'; name.textContent = ch.name || 'Sem nome';
+      const badge = document.createElement('span'); badge.className = 'channel-badge'; badge.textContent = ch.quality || '';
 
       titleRow.append(num, name, badge);
 
-      const cat = document.createElement('div');
-      cat.className = 'channel-category';
-      cat.textContent = ch.category || '';
-
+      const cat = document.createElement('div'); cat.className = 'channel-category'; cat.textContent = ch.category || '';
       textWrap.append(titleRow, cat);
 
       btn.append(logoWrap, textWrap);
-
-      if (ch.live) {
-        const live = document.createElement('span');
-        live.className = 'channel-live';
-        live.textContent = 'AO VIVO';
-        btn.appendChild(live);
-      }
-
+      if (ch.live) { const live = document.createElement('span'); live.className='channel-live'; live.textContent='AO VIVO'; btn.appendChild(live); }
       btn.addEventListener('click', () => selectChannel(idx));
+
       listEl.appendChild(btn);
     });
   }
 
-  // ===== Player =====
-  const player = () => document.getElementById('player');
-  const infoTitle = () => document.getElementById('infoTitle');
-  const infoSubtitle = () => document.getElementById('infoSubtitle');
-
   function selectChannel(idx) {
-    const visible = getVisibleChannels();
-    if (!visible.length) return;
-
-    selectedIndex = Math.max(0, Math.min(idx, visible.length - 1));
+    const visible = getVisibleChannels(); if (!visible.length) return;
+    selectedIndex = Math.max(0, Math.min(idx, visible.length-1));
     const ch = visible[selectedIndex];
 
-    const iframe = player();
-    if (iframe) iframe.src = ch.streamUrl || 'about:blank';
-
-    const t = infoTitle();
-    const s = infoSubtitle();
-    if (t) t.textContent = ch.name || '—';
-    if (s) s.textContent = ch.category || '—';
-
-    // se o usuário ainda não “liberou” o primeiro clique, mostra o shield
-    if (localStorage.getItem(PLAY_GATE_KEY) !== '1') showPlayShield();
-
+    setPlayerSource(ch.streamUrl || '', null);
+    const t = byId('infoTitle'); const s = byId('infoSubtitle');
+    if (t) t.textContent = ch.name || '—'; if (s) s.textContent = ch.category || '—';
+    if (localStorage.getItem('playGateDone') !== '1') showPlayShield();
     renderList();
   }
 
-  // ===== Abas =====
+  // Abas
+  function setActiveTabUI(activeBtn) {
+    const btns = Array.from(document.querySelectorAll('header nav.menu button'));
+    btns.forEach(b => b.classList.toggle('active', b === activeBtn));
+  }
+
+  async function switchToSports(btn) {
+    if (sportsHandle && sportsHandle.destroy) { sportsHandle.destroy(); sportsHandle = null; }
+    setActiveTabUI(btn);
+    const mod = await import('./sports.js?v=15');
+    sportsHandle = mod.mount({
+      tabsHost: byId('sportsTabsHost'),
+      listEl: byId('channelList'),
+      apiBase: window.SPORTS_API_BASE || 'https://api.reidoscanais.io',
+      onPlay: (title, category, url, detailHref) => {
+        window.FulltvPlayer.setPlayerSource(url, detailHref);
+        const t = byId('infoTitle'); const s = byId('infoSubtitle');
+        if (t) t.textContent = title || '—'; if (s) s.textContent = category || '—';
+        if (localStorage.getItem('playGateDone') !== '1') showPlayShield();
+      }
+    });
+  }
+
   function initTabs() {
     const btns = Array.from(document.querySelectorAll('header nav.menu button'));
     if (!btns.length) return;
 
-    const setActiveTabUI = (activeBtn) => btns.forEach(b => b.classList.toggle('active', b === activeBtn));
-
     btns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault?.();
-        const key = normalize(btn.dataset.tab || btn.textContent);
+        const key = (btn.dataset.tab || btn.textContent || '').trim().toUpperCase();
         const mapped = TAB_TO_CATEGORY[key] || 'ALL';
 
-        const prev = getVisibleChannels()[selectedIndex];
-        activeCategory = mapped;
+        if (mapped === 'LIVE_GAMES') { switchToSports(btn); return; }
 
+        if (sportsHandle && sportsHandle.destroy) { sportsHandle.destroy(); sportsHandle = null; }
+        byId('channelList').innerHTML = '';
+        const tabsHost = byId('sportsTabsHost'); if (tabsHost) tabsHost.style.display='none';
+
+        activeCategory = mapped;
+        setActiveTabUI(btn);
+
+        RAW_CHANNELS = readChannelsSafe();
+        const prev = getVisibleChannels()[selectedIndex];
         const nowList = getVisibleChannels();
         const keepIdx = prev ? nowList.findIndex(c => c.id === prev.id) : -1;
         selectedIndex = keepIdx >= 0 ? keepIdx : 0;
 
-        setActiveTabUI(btn);
         renderList();
-        selectChannel(selectedIndex);
+        if (getVisibleChannels().length) selectChannel(selectedIndex);
       });
     });
 
-    // Estado inicial
-    const initial = btns.find(b => normalize(b.dataset.tab || b.textContent) === 'TODOS OS CANAIS') || btns[0];
+    const initial = btns.find(b => (b.dataset.tab || b.textContent || '').trim().toUpperCase() === 'TODOS OS CANAIS') || btns[0];
     if (initial) initial.click();
   }
 
-  // ===== Teclado =====
+  // Teclado
   function initKeyboard() {
     window.addEventListener('keydown', (e) => {
-      const visible = getVisibleChannels();
-      if (!visible.length) return;
-
+      if (sportsHandle) return;
+      const visible = getVisibleChannels(); if (!visible.length) return;
       if (e.key === 'ArrowDown') { e.preventDefault(); selectChannel(selectedIndex + 1); }
       if (e.key === 'ArrowUp')   { e.preventDefault(); selectChannel(selectedIndex - 1); }
-      if (e.key === 'Enter')     { e.preventDefault(); }
     });
   }
 
-  // ===== Relógio =====
+  // Relógio / FS / Shield
   function initClock() {
-    const el = document.getElementById('clock');
-    if (!el) return;
-    const tick = () => {
-      const now = new Date();
-      el.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    };
+    const el = byId('clock'); if (!el) return;
+    const tick = () => { el.textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); };
     tick(); setInterval(tick, 1000);
   }
-
-  // ===== Fullscreen =====
   function initFullscreen() {
-    const btn = document.getElementById('btnFullscreen');
-    const container = document.getElementById('playerContainer');
-    const infoBar = document.getElementById('infoBar');
+    const btn = byId('btnFullscreen'); const container = byId('playerContainer'); const infoBar = byId('infoBar');
     if (!btn || !container) return;
-
-    function updateInfoBarVisibility() {
-      const isFS = !!document.fullscreenElement;
-      if (infoBar) infoBar.style.display = isFS ? 'none' : '';
-    }
-    btn.addEventListener('click', async () => {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else { updateInfoBarVisibility(); await container.requestFullscreen?.(); }
-    });
+    function updateInfoBarVisibility() { const isFS = !!document.fullscreenElement; if (infoBar) infoBar.style.display = isFS ? 'none' : ''; }
+    btn.addEventListener('click', async () => { if (document.fullscreenElement) await document.exitFullscreen(); else { updateInfoBarVisibility(); await container.requestFullscreen?.(); } });
     document.addEventListener('fullscreenchange', updateInfoBarVisibility);
   }
 
-  // ===== Init =====
   function init() {
-    if (!Array.isArray(CHANNELS)) { console.error('channels.js não carregado.'); return; }
     initTabs();
     renderList();
     if (getVisibleChannels().length) selectChannel(0);
